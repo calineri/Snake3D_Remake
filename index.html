@@ -1,29 +1,15 @@
-<!doctype <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Snake 3D</title>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
-    <script src="gl-matrix.js"></script>
-    <script src="programa.js"></script>
-</head>
-<body>
-    <canvas
-        Style="position: fixed; top:0; left:0;">
-    </canvas>
-    <section id="HUD">
-        <div class="elementos">
-            <img src="maca.png" />
-            <h2 id="contadorMaca">: 0</h2>
-        </div>
-    </section>
-    <section id="mensagem">
-        <div class="gameOver">
-            <h2 id="gameOverText"></h2>
-            <h2 onClick="window.location.reload();" id="retryText"></h2>
-        </div>
-    </section>
-</body>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>Snake 3D Remake</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="three.js"></script>
+		<script src="programa.js"></script>
+	</body>
 </html>
