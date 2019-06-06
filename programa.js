@@ -17,6 +17,7 @@ let cobra = [];
 let maca;
 let cont = 2;
 let parede = [];
+let chao = [];
 let controle = false;
 
 function main(){
@@ -27,22 +28,21 @@ function main(){
     cobra[0] = getSnakeData();
     cobra[0].position.x = -1;
     cobra[0].material.emissive.setRGB(0, 1, 0);
-    //cobra[0].rotateZ(Math.PI/2);
     cobra[0].rotation.z = Math.PI/2;
     cobra[1] = getSnakeData();
     cobra[1].position.x = -1.5;
-    //cobra[1].rotateZ(Math.PI/2);
     cobra[1].rotation.z = Math.PI/2;
+    
     cobra[2] = getSnakeData();
     cobra[2].position.x = -2.0;
-    //cobra[2].rotateZ(Math.PI/2);
     cobra[2].rotation.z = Math.PI/2;
 
     maca = getAppleData();
 
     criaMaca();
-
+    
     desenhaCenario();
+    desenhaSolo();
 
     // 2.1 - ADICIONAR À CENA
     scene.add( cobra[0] );
@@ -82,7 +82,6 @@ function animate() {
                 cobra[cont].position.x = cobra[0].position.x;
                 cobra[cont].position.y = cobra[0].position.y;
                 cobra[cont].position.z = cobra[0].position.z;
-                //cobra[cont].rotateZ(Math.PI/2);
                 cobra[cont].rotation.z = Math.PI/2;
                 scene.add( cobra[cont] );
 
@@ -100,7 +99,6 @@ function animate() {
         }
 
     }
-
     
     renderer.render( scene, camera );
     if(!gameOver){
@@ -110,7 +108,6 @@ function animate() {
 
 function movimentaCobra(){
 
-
     for(let i = cobra.length-1; i>0; i--){
         let x = cobra[i-1].position.x - cobra[i].position.x;
         let z = cobra[i-1].position.z - cobra[i].position.z;
@@ -119,9 +116,6 @@ function movimentaCobra(){
         cobra[i].position.z = cobra[i-1].position.z;
 
         cobra[i].rotation.y = a;
-
-        
-
 
     }
     let x = cobra[0].position.x + hor - cobra[0].position.x;
@@ -136,12 +130,13 @@ function movimentaCobra(){
 }
 
 function criaMaca(){
+    maca.position.x = (Math.floor(Math.random() * 10 + 1)) -5;
+    maca.position.z = (Math.floor(Math.random() * 10 + 1)) -5;
+
     while(colisaoCorpoMaca()){
         maca.position.x = (Math.floor(Math.random() * 10 + 1)) -5;
         maca.position.z = (Math.floor(Math.random() * 10 + 1)) -5;
     }
-    console.log("Posicao X: " + maca.position.x);
-    console.log("Posicao Z: " + maca.position.z);
     return;
 }
 
@@ -197,11 +192,17 @@ function getAppleData(){
 }
 
 function getWallData(){
-    //let geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
     let geometry = new THREE.ConeGeometry( 0.5, 1.5, 0.5 );
     let material = new THREE.MeshLambertMaterial( { color: 0x0000ff } );
     let cone = new THREE.Mesh( geometry, material );
     return cone;
+}
+
+function getFloorData(){
+    let geometry = new THREE.PlaneGeometry( 1, 1, 1 );
+    let material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+    let floor = new THREE.Mesh( geometry, material );
+    return floor;
 }
 
 function setup(){
@@ -212,7 +213,7 @@ function setup(){
 
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(fovy, aspect, near, far);
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({ antialias: true });
 
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
@@ -310,29 +311,25 @@ function desenhaCenario(){
         cont++;
     }
 
-    /*
-    // Desenha linha horizontal
-    for(let i=9; i>=-9; i--){
-        linha[0] = -7;
-        linha[2] = i;
-        modelLinha = mat4.fromTranslation([],linha);
-        gl.uniformMatrix4fv(modelUniform, false, modelLinha);
-        gl.uniform3f(colorUniform, color4[0], color4[1], color4[2]);
-        gl.drawArrays(gl.LINES, 36, 2);
-    }
-
-    // Desenha linha vertical
-    for(let i=-9; i<=9; i++){
-        linha[0] = i;
-        linha[2] = -7;
-        modelLinha = mat4.fromTranslation([],linha);
-        gl.uniformMatrix4fv(modelUniform, false, modelLinha);
-        gl.uniform3f(colorUniform, color4[0], color4[1], color4[2]);
-        gl.drawArrays(gl.LINES, 38, 2);
-    }
-    */
-
     return;
+}
+
+function desenhaSolo(){
+    
+    let cont = 0;
+
+    for(let i=-6; i <= 6; i++){
+        for(let j = -6; j <=6; j++){
+            chao[cont] = getFloorData();
+            chao[cont].position.x = i;
+            chao[cont].position.y = -1;
+            chao[cont].position.z = j;
+            chao[cont].rotation.x = Math.PI/2;
+            scene.add(chao[cont]);
+            cont++;
+        }
+    }
+
 }
 
 function colisaoCenario(){
