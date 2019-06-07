@@ -23,7 +23,6 @@ let sons = [];
 sons[0] = new Audio('Pop.mp3');
 sons[1] = new Audio('lalala_Begin.mp3');
 sons[2] = new Audio('lalala_GameOver.mp3');
-sons[1].play();
 
 function main(){
     // 1 - SETUP DA CENA / CAMERA E RENDERER
@@ -73,7 +72,8 @@ function animate() {
         if(frame % 10 === 0){
             
             movimentaCobra();
-
+            //maca.rotateY = (Math.PI/2)*frame;
+            //console.log(maca.rotateY);
             
             if(colisaoProprioCorpo() || colisaoCenario()){
                 gameOver = true;
@@ -106,6 +106,8 @@ function animate() {
 
         }
 
+    }else{
+        sons[1].play();
     }
     
     if(!gameOver && !pause){
