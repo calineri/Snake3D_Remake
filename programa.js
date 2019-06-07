@@ -7,6 +7,7 @@ let far;
 let renderer;
 
 let gameOver = false;
+let pause = false;
 let blockver = false;
 let blockhor = false;
 let iniciou = false;
@@ -18,7 +19,11 @@ let maca;
 let cont = 2;
 let parede = [];
 let chao = [];
-let controle = false;
+let sons = [];
+sons[0] = new Audio('Pop.mp3');
+sons[1] = new Audio('lalala_Begin.mp3');
+sons[2] = new Audio('lalala_GameOver.mp3');
+sons[1].play();
 
 function main(){
     // 1 - SETUP DA CENA / CAMERA E RENDERER
@@ -27,7 +32,7 @@ function main(){
     // 2.0 - CRIAR COBRA 
     cobra[0] = getSnakeData();
     cobra[0].position.x = -1;
-    cobra[0].material.emissive.setRGB(0, 1, 0);
+    cobra[0].material.emissive.setHex(0x8250DC);
     cobra[0].rotation.z = Math.PI/2;
     cobra[1] = getSnakeData();
     cobra[1].position.x = -1.5;
@@ -63,6 +68,7 @@ function main(){
 function animate() {
     
     if (iniciou){
+        sons[1].pause();
         frame++
         if(frame % 10 === 0){
             
@@ -72,11 +78,13 @@ function animate() {
             if(colisaoProprioCorpo() || colisaoCenario()){
                 gameOver = true;
                 iniciou = false;
+                sons[2].play();
                 console.log("Voce Perdeu!");
             }
 
             if(colisaoCabecaMaca()){
                 console.log("Passou aqui");
+                sons[0].play();
                 cont = cont +1;
                 cobra[cont] = getSnakeData();
                 cobra[cont].position.x = cobra[0].position.x;
@@ -100,8 +108,8 @@ function animate() {
 
     }
     
-    renderer.render( scene, camera );
-    if(!gameOver){
+    if(!gameOver && !pause){
+        renderer.render( scene, camera );
         window.requestAnimationFrame( animate );
     }
 }
@@ -125,7 +133,7 @@ function movimentaCobra(){
 
     cobra[0].position.x += hor;
     cobra[0].position.z += ver;
-    controle=false;
+
     return;
 }
 
@@ -177,30 +185,35 @@ function createLights(){
 }
 
 function getSnakeData(){
-    let geometry = new THREE.CylinderGeometry( 0.3, 0.3, 0.5 , 20.0, 20.0);
-    let material = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
-    let cube = new THREE.Mesh( geometry, material );
-    return cube;
+    let geometry = new THREE.SphereGeometry( 0.3, 32, 32 );
+    let material = new THREE.MeshPhongMaterial( { color: 0x8250DC } );
+    let cyl = new THREE.Mesh( geometry, material );
+    return cyl;
 }
 
 function getAppleData(){
-    let geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
-    let material = new THREE.MeshLambertMaterial( { color: 0xff0000 } );
+    
+    //let geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
+    let geometry = new THREE.IcosahedronGeometry( 0.3, 0);
+    let material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
     let cube = new THREE.Mesh( geometry, material );
     
     return cube;
+
 }
 
 function getWallData(){
-    let geometry = new THREE.ConeGeometry( 0.5, 1.5, 0.5 );
-    let material = new THREE.MeshLambertMaterial( { color: 0x0000ff } );
-    let cone = new THREE.Mesh( geometry, material );
-    return cone;
+    
+    let geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
+    let material = new THREE.MeshPhongMaterial( { color: 0x1B5A1E } );
+    let cube = new THREE.Mesh( geometry, material );
+    return cube;
+    
 }
 
 function getFloorData(){
     let geometry = new THREE.PlaneGeometry( 1, 1, 1 );
-    let material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+    let material = new THREE.MeshPhongMaterial( {color: 0x55CC5B, side: THREE.DoubleSide} );
     let floor = new THREE.Mesh( geometry, material );
     return floor;
 }
@@ -227,8 +240,8 @@ function resize(){
 }
 
 function posicionarCamera(){
-    camera.position.z = 7;
-    camera.position.y = 7;
+    camera.position.z = 6;
+    camera.position.y = 8;
     camera.lookAt(0, 0, 0);
 }
 
@@ -236,81 +249,86 @@ function keyDown(evt){
     if(!gameOver){
         if(evt.key === "ArrowDown"){ 
             if (!blockver){
-                ver = .5, hor = 0.0, blockver = true, iniciou=true, controle=true;
+                ver = .5, hor = 0.0, blockver = true, iniciou=true;
             }
             return;
         }
         
         if(evt.key === "ArrowUp"){
             if (!blockver){
-                ver = -.5, hor = 0.0, blockver = true, iniciou=true, controle=true;
+                ver = -.5, hor = 0.0, blockver = true, iniciou=true;
             }
             return;
         }
 
         if(evt.key === "ArrowLeft"){
             if (!blockhor){
-                hor = -.5, ver = 0.0, blockhor = true, controle=true;
+                hor = -.5, ver = 0.0, blockhor = true;
             }
             return;
         }
 
         if(evt.key === "ArrowRight"){
             if (!blockhor){
-                hor = .5, ver = 0.0, blockhor = true, iniciou=true, controle=true;
+                hor = .5, ver = 0.0, blockhor = true, iniciou=true;
             }
             return;
         }
-    }
-    
-    if(evt.key === "a"){
-        gameOver = true;
+            
+        if(evt.key === "p" || evt.key === "P"){
+            if(pause){
+                pause = false;
+                animate();
+            }else{
+                pause = true;
+            }
+        }
+
     }
 
-    if(evt.key === "b" && gameOver){
-        gameOver = false;
-        animate();
-    }
 }
 
 function desenhaCenario(){
     let cont = 0;
     // Desenha borda superior da tela
-    for(let i=-6; i <= 6; i++){
+    for(let i=-6; i <= 6;){
         parede[cont] = getWallData();
         parede[cont].position.x = i;
         parede[cont].position.z = -6;
         scene.add(parede[cont]);
+        i = i + 0.5;
         cont++;
     }
 
     // Desenha borda inferior da tela
-    for(let i=-6; i <= 6; i++){
+    for(let i=-6; i <= 6;){
         parede[cont] = getWallData();
         parede[cont].position.x = i;
         parede[cont].position.z = 6;
         scene.add(parede[cont]);
+        i = i + 0.5;
         cont++;
     }
 
     // Desenha borda esquerda da tela
-    for(let i=-6; i <= 6; i++){
+    for(let i=-6; i <= 6;){
         parede[cont] = getWallData();
         parede[cont].position.x = -6;
         parede[cont].position.z = i;
         scene.add(parede[cont]);
+        i = i + 0.5;
         cont++;
     }   
 
     // Desenha borda direita da tela
-    for(let i=-6; i <= 6; i++){
+    for(let i=-6; i <= 6;){
         parede[cont] = getWallData();
         parede[cont].position.x = 6;
         parede[cont].position.z = i;
         scene.add(parede[cont]);
+        i = i + 0.5;
         cont++;
     }
-
     return;
 }
 
@@ -318,16 +336,18 @@ function desenhaSolo(){
     
     let cont = 0;
 
-    for(let i=-6; i <= 6; i++){
-        for(let j = -6; j <=6; j++){
+    for(let i=-6; i < 6;){
+        for(let j = -6; j <6;){
             chao[cont] = getFloorData();
             chao[cont].position.x = i;
-            chao[cont].position.y = -1;
+            chao[cont].position.y = -0.5;
             chao[cont].position.z = j;
             chao[cont].rotation.x = Math.PI/2;
             scene.add(chao[cont]);
             cont++;
+            j = j + 0.5;
         }
+        i = i + 0.5;
     }
 
 }
