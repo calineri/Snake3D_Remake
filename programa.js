@@ -24,6 +24,10 @@ sons[0] = new Audio('Pop.mp3');
 sons[1] = new Audio('lalala_Begin.mp3');
 sons[2] = new Audio('lalala_GameOver.mp3');
 
+let texture;
+let backgroundMesh; 
+
+
 function main(){
     // 1 - SETUP DA CENA / CAMERA E RENDERER
     setup();
@@ -72,7 +76,8 @@ function animate() {
         if(frame % 10 === 0){
             
             movimentaCobra();
-            //maca.rotateY = (Math.PI/2)*frame;
+            maca.rotation.y += 0.5;
+            maca.rotation.x += 0.5;
             //console.log(maca.rotateY);
             
             if(colisaoProprioCorpo() || colisaoCenario()){
@@ -107,7 +112,9 @@ function animate() {
         }
 
     }else{
-        sons[1].play();
+        if(document.hasFocus()){
+            sons[1].play();
+        }
     }
     
     if(!gameOver && !pause){
@@ -227,6 +234,8 @@ function setup(){
     far = 1000;
 
     scene = new THREE.Scene();
+    //scene.background = new THREE.Color( 0xff0000 );
+    scene.background = new THREE.TextureLoader().load( "background.jpg" );
     camera = new THREE.PerspectiveCamera(fovy, aspect, near, far);
     renderer = new THREE.WebGLRenderer({ antialias: true });
 
